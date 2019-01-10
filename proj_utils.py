@@ -257,6 +257,7 @@ def plotBrains(nodeCoords, nodeColors, fname=None):
             figure=brain_fig,
             output_file=fname,
             black_bg=False)
+    plt.show()
 
 def plotBrains2(coords, colors, fname=None):
     #Simplified from projUtils version
