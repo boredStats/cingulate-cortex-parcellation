@@ -163,3 +163,24 @@ def bestSolution(km_data, best_k, obs_names=None):
                 'Percentage of iterations assigned to cluster']
     sol_df = pd.DataFrame(sol_consistency, index=obs_names, columns=colnames)
     return sol_df
+
+def node_color_generator(color_palette,node_labels):
+    """
+    color_palette: list of matplotlib colors, defaults to my list
+    node_labels: list of integers corresponding to cluster labels
+    """        
+    color_list = []
+    for label in node_labels:
+        color_list.append(color_palette[int(label)])
+    return color_list
+
+def plotBrains2(coords, colors, fname=None):
+    #Simplified from projUtils version
+    mpl.rcParams.update(mpl.rcParamsDefault)
+    
+    numc = len(colors)
+    adjMat = np.zeros(shape=(numc, numc))
+    fig = plt.figure(figsize=[24, 12])
+    plot_connectome(adjMat, coords, colors, display_mode='lr', node_size=900,
+                    figure=fig, output_file=fname, black_bg=False)
+    plt.show()

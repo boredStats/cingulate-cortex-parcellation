@@ -10,6 +10,9 @@ import os
 import kmeansUtils as ku
 import pandas as pd
 import pickle as pkl
+
+import sys
+sys.path.append("..")
 import proj_utils as pu
 
 with open(r"../pData.pkl", 'rb') as f:
@@ -34,15 +37,11 @@ dump_data['km'] = km_data
 dump_data['sil'] = sil_data
 with open(os.path.join(odir, "results.pkl"), 'wb') as file:
     pkl.dump(dump_data, file)
-
-fpath = os.path.join(odir,"results.pkl")
-with open(fpath,'wb') as file:
-    pkl.dump(km_data, file)
     
 fname = os.path.join(odir, "silScores.png")
 best_k = ku.bestSilScores(sil_data, 28, fname)
 
-#bestK = 4 #overwriting best_k for testin
+#bestK = 4 #overwriting best_k for testing
 network_consistency = ku.bestSolution(km_data, best_k, seedList)
 
 fname = os.path.join(odir, "%dkSolution.csv" % best_k)
