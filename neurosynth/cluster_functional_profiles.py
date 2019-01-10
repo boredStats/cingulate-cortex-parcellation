@@ -72,7 +72,7 @@ odir = os.path.join(os.getcwd(),"output")
 if not os.path.isdir(odir):
     os.mkdir(odir)
 
-hier_cluster_file = r"../create_seeds/hierarchical_clustering/hierarchical_cluster_nifti.nii"
+hier_cluster_file = r"../create_seeds/k_means/kmeans_indexed.nii.gz"
 #kmeans_cluster_file = os.path.join(pdir,"create_seeds/)
 
 print("Calculating functional preference profiles...")
@@ -91,7 +91,7 @@ Getting full functional profiles from each cluster
 removed save to csv section, see next chunk 
 """
 #print("Saving functional preference profile data...")
-cluster_names = ['hclust1','hclust2','hclust3']
+cluster_names = ['kclust1','kclust2','kclust3']
 
 all_feats = list(feat_df['feature'].values)
 unique_feats = get_unique_features(all_feats)
