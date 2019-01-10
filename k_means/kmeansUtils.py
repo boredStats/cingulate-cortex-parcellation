@@ -79,7 +79,7 @@ def bestSilScores(sil_scores, max_k=None, fname=None):
     #Figure prep
     blu = 'tab:blue'
     red = 'tab:red'
-    alpha = .3 #originally .2
+    alpha = .02 #originally .02
     if scores.shape[0] < 50:
         alpha = .6
 

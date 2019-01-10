@@ -50,6 +50,6 @@ network_consistency.to_csv(fname, header=False)
 
 palette = pData['catColors']
 coords = pData['coordsMNI']
-colors = pu.node_color_generator(palette, network_consistency[:, 0])
+colors = pu.node_color_generator(palette, network_consistency.values[:, 0])
 fname = os.path.join(odir, "%dkSolutionBrain.png" % best_k)
 pu.plotBrains(coords, colors, fname)
