@@ -141,7 +141,7 @@ def plotScree(eigenvalues, eigenPvals=None, kaiser=False, fname=None):
         fig.savefig(fname, bbox_inches='tight')
     return fig, ax, ax2
 
-def plotFS(f, eigs, atype='s', fs=[1, 2], tableKey=None, col=None, text=None, fname=None):
+def plotFS(f, eigs, atype='l', fs=[1, 2], tableKey=None, col=None, text=None, fname=None):
     """
     Plot factor scores or factor loadings (circle of correlation)
     
@@ -213,7 +213,7 @@ def plotFS(f, eigs, atype='s', fs=[1, 2], tableKey=None, col=None, text=None, fn
     
     circ = plt.Circle((0, 0), radius=1, edgecolor='w', facecolor='None', linewidth=1, linestyle='--')
     fig,ax = plt.subplots(figsize=(7.5,7.5))
-    if atype != 's':
+    if atype != 'l':
         ax.add_patch(circ)
         ax.set_xlim(-1, 1)
         ax.set_ylim(-1, 1)

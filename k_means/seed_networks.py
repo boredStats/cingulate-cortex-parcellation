@@ -25,7 +25,7 @@ if not os.path.isdir(odir):
 seedList = pData['newNames']
 
 dataFile = r"../jaccard_indices/jaccard_seed_to_networks_raw.csv"
-dataDf = pd.read_csv(dataFile, index_col=0)
+dataDf = pd.read_csv(dataFile, index_col=0,)
 corrPrep = dataDf.T
 corrDf = corrPrep.corr()
 
