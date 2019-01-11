@@ -53,7 +53,7 @@ def permPCA(data, nIters=1000):
         see Phipson & Smyth 2010 for more information
     """
     permData = deepcopy(data)
-    pca = decomp.PCA(n_components=min(data.shape))
+    pca = decomp.PCA(n_components=min(data.shape), svd_solver='full')
     pca.fit(data)
     eigs = pca.explained_variance_
     
@@ -137,6 +137,8 @@ def plotScree(eigenvalues, eigenPvals=None, kaiser=False, fname=None):
 #        ax3.set_yticklabels([])
 #        ax3.set_yticks([])
 
+    plt.show()
+    
     if fname:
         fig.savefig(fname, bbox_inches='tight')
     return fig, ax, ax2
@@ -239,6 +241,8 @@ def plotFS(f, eigs, atype='l', fs=[1, 2], tableKey=None, col=None, text=None, fn
         
     if fname:
         fig.savefig(fname, bbox_inches='tight')
+    
+    plt.show()
 
 def createColorSpace(loadingsPair):
     #By JAH
@@ -294,6 +298,8 @@ def createColorLegend(R, theta, fname=None):
     
     if fname is not None:
         plt.savefig(fname, dpi=300, facecolor='w', bbox_inches='tight')
+    
+    plt.show()
 
 def plotBrains(coords, colors, fname=None):
     #Simplified from projUtils version
@@ -304,6 +310,7 @@ def plotBrains(coords, colors, fname=None):
     fig = plt.figure(figsize=[24, 12])
     plot_connectome(adjMat, coords, colors, display_mode='lr', node_size=900,
                     figure=fig, output_file=fname, black_bg=False)
+    plt.show()
 
 def assignColPair(cpair, x):
     rgb = [cpair[0]] * len(x)
