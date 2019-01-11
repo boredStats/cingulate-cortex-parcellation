@@ -24,21 +24,26 @@ if not os.path.isdir(odir):
 
 seedList = pData['newNames']
 
-dataFile = r"../jaccard_indices/jaccard_seed_to_networks_raw.csv"
-dataDf = pd.read_csv(dataFile, index_col=0,)
-corrPrep = dataDf.T
-corrDf = corrPrep.corr()
+#dataFile = r"../jaccard_indices/jaccard_seed_to_networks_raw.csv"
+#dataDf = pd.read_csv(dataFile, index_col=0,)
+#corrPrep = dataDf.T
+#corrDf = corrPrep.corr()
+#
+#n_clusters = len(corrDf.values)-1
+#km_data, sil_data = ku.kmeans(corrDf.values, n_clusters)
+#
+#dump_data= {}
+#dump_data['km'] = km_data
+#dump_data['sil'] = sil_data
+#with open(os.path.join(odir, "results.pkl"), 'wb') as file:
+#    pkl.dump(dump_data, file)
 
-n_clusters = len(corrDf.values)-1
-km_data, sil_data = ku.kmeans(corrDf.values, n_clusters)
-
-dump_data= {}
-dump_data['km'] = km_data
-dump_data['sil'] = sil_data
-with open(os.path.join(odir, "results.pkl"), 'wb') as file:
-    pkl.dump(dump_data, file)
-    
-fname = os.path.join(odir, "silScores.png")
+with open(os.path.join(odir, "results.pkl"), 'rb') as file:
+    dump_data = pkl.load(file)
+sil_data = dump_data['sil']
+km_data = dump_data['km']
+  
+fname = os.path.join(odir, "silScores.svg")
 best_k = ku.bestSilScores(sil_data, 28, fname)
 
 #bestK = 4 #overwriting best_k for testing
@@ -50,5 +55,5 @@ network_consistency.to_csv(fname, header=False)
 palette = pData['catColors']
 coords = pData['coordsMNI']
 colors = pu.node_color_generator(palette, network_consistency.values[:, 0])
-fname = os.path.join(odir, "%dkSolutionBrain.png" % best_k)
+fname = os.path.join(odir, "%dkSolutionBrain.svg" % best_k)
 pu.plotBrains(coords, colors, fname)

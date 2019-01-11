@@ -22,30 +22,35 @@ if not os.path.isdir(odir):
 
 seedList = pData['newNames']
 
-dataFile = r"../neurosynth/output/seed_functional_profiles.csv"
-dataDf = pd.read_csv(dataFile, index_col=0)
-fpp_df = dataDf.T.corr()
+#dataFile = r"../neurosynth/output/seed_functional_profiles.csv"
+#dataDf = pd.read_csv(dataFile, index_col=0)
+#fpp_df = dataDf.T.corr()
+#
+#dataFile = r"../jaccard_indices/jaccard_seed_to_networks_raw.csv"
+#dataDf = pd.read_csv(dataFile, index_col=0,)
+#network_df = dataDf.T.corr()
+#
+#combined_matrix = np.ndarray(shape=[fpp_df.values.shape[0], 2*fpp_df.values.shape[0]])
+#combined_matrix[:, :58] = network_df.values
+#combined_matrix[:, 58:] = fpp_df.values
+#combined_colnames = list(fpp_df.columns.values) + list(network_df.columns.values)
+#combined_df = pd.DataFrame(combined_matrix, index=fpp_df.index, columns=combined_colnames)
+#
+#n_clusters = combined_df.values.shape[0]-1
+#km_data, sil_data = ku.kmeans(combined_df.values, n_clusters)
+#
+#dump_data= {}
+#dump_data['km'] = km_data
+#dump_data['sil'] = sil_data
+#with open(os.path.join(odir, "results.pkl"), 'wb') as file:
+#    pkl.dump(dump_data, file)
 
-dataFile = r"../jaccard_indices/jaccard_seed_to_networks_raw.csv"
-dataDf = pd.read_csv(dataFile, index_col=0,)
-network_df = dataDf.T.corr()
+with open(os.path.join(odir, "results.pkl"), 'rb') as file:
+    dump_data = pkl.load(file)
+sil_data = dump_data['sil']
+km_data = dump_data['km']
 
-combined_matrix = np.ndarray(shape=[fpp_df.values.shape[0], 2*fpp_df.values.shape[0]])
-combined_matrix[:, :58] = network_df.values
-combined_matrix[:, 58:] = fpp_df.values
-combined_colnames = list(fpp_df.columns.values) + list(network_df.columns.values)
-combined_df = pd.DataFrame(combined_matrix, index=fpp_df.index, columns=combined_colnames)
-
-n_clusters = combined_df.values.shape[0]-1
-km_data, sil_data = ku.kmeans(combined_df.values, n_clusters)
-
-dump_data= {}
-dump_data['km'] = km_data
-dump_data['sil'] = sil_data
-with open(os.path.join(odir, "results.pkl"), 'wb') as file:
-    pkl.dump(dump_data, file)
-    
-fname = os.path.join(odir, "silScores.png")
+fname = os.path.join(odir, "silScores.svg")
 best_k = ku.bestSilScores(sil_data, 28, fname)
 
 #bestK = 4 #overwriting best_k for testing
@@ -57,5 +62,5 @@ network_consistency.to_csv(fname, header=False)
 palette = pData['catColors']
 coords = pData['coordsMNI']
 colors = pu.node_color_generator(palette, network_consistency.values[:, 0])
-fname = os.path.join(odir, "%dkSolutionBrain.png" % best_k)
+fname = os.path.join(odir, "%dkSolutionBrain.svg" % best_k)
 pu.plotBrains(coords, colors, fname)
