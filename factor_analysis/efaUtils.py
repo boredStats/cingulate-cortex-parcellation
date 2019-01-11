@@ -215,7 +215,7 @@ def plotFS(f, eigs, atype='l', fs=[1, 2], tableKey=None, col=None, text=None, fn
     
     circ = plt.Circle((0, 0), radius=1, edgecolor='w', facecolor='None', linewidth=1, linestyle='--')
     fig,ax = plt.subplots(figsize=(7.5,7.5))
-    if atype != 'l':
+    if atype == 'l':
         ax.add_patch(circ)
         ax.set_xlim(-1, 1)
         ax.set_ylim(-1, 1)

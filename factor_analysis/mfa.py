@@ -29,7 +29,8 @@ fclusterDf = pd.read_csv(fcluster, header=None, index_col=0)
 jcluster = r"../k_means/seed_networks/3kSolution.csv"
 jclusterDf = pd.read_csv(jcluster, header=None, index_col=0)
 
-odir = join(os.getcwd(), "mfa_3factor")
+n_factors = 3
+odir = join(os.getcwd(), "mfa_%dfactor" % n_factors)
 if not isdir(odir):
     os.mkdir(odir)
 
@@ -53,13 +54,12 @@ colnames = colJ + colF
 
 Z = pd.DataFrame(X, index=seedList, columns=colnames)
 eigs, p = utils.permPCA(Z.values)
-utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
+utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.svg"))
 
 groups = {}
 groups['icaNetworks'] = [c for c in list(Z) if "icaNet" in c]
 groups['fpp'] = [c for c in list(Z) if "fpp" in c]
 
-n_factors = 3
 mfa = prince.MFA(groups=groups,
                  n_components=n_factors,
                  n_iter=3,
@@ -80,14 +80,14 @@ kCombined = pd.read_csv(f, index_col=0, header=None)
 col = pu.node_color_generator(catColors, kCombined.values[:, 0])
 
 fs = factorScores.values[:, 0:2]
-#utils.plotCircleOfCorrMFA(fs, eigs, col=col, fname=join(odir, "fs.png"))
+#utils.plotCircleOfCorrMFA(fs, eigs, col=col, fname=join(odir, "fs.svg"))
 fsn = utils.normTo1(fs)
-utils.plotFS(fsn, eigs, 'c', col=col, fname=join(odir, "fs_normalized.png"))
+utils.plotFS(fsn, eigs, atype='c', col=col, fname=join(odir, "fs_normalized.svg"))
 
 R, theta, rgb = utils.createColorSpace(fsn)
 rgb[rgb > 1] = 1
-utils.createColorLegend(R, theta, join(odir, "fs_colorLegend.png"))
-utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "fs_brain.png"))
+utils.createColorLegend(R, theta, join(odir, "fs_colorLegend.svg"))
+utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "fs_brain.svg"))
 
 #--- ica networks ---#
 icaNetLoadings = loadings[loadings.index.str.contains("icaNet")]
@@ -101,10 +101,10 @@ hcols1 = pu.node_color_generator(catColors, np.asarray(reorderedSol))
 
 floads = icaNetLoadings.values[:,0:2]
 R, theta, rgb = utils.createColorSpace(floads)
-utils.createColorLegend(R, theta, join(odir, "icaNet_colorLegend.png"))
-utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "icaNet_brain.png"))
+utils.createColorLegend(R, theta, join(odir, "icaNet_colorLegend.svg"))
+utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "icaNet_brain.svg"))
 
-fname = join(odir, "icaNet_circleOfCorr12.png")
+fname = join(odir, "icaNet_circleOfCorr12.svg")
 utils.plotFS(floads, eigs, col=hcols1, fname=fname)
 
 #--- FPP ---#
@@ -119,14 +119,14 @@ hcols2 = pu.node_color_generator(catColors, np.asarray(reorderedSol))
 
 floads = fppLoadings.values[:,0:2]
 R, theta, rgb = utils.createColorSpace(floads)
-utils.createColorLegend(R, theta, join(odir, "fpp_colorLegend.png"))
-utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "fpp_brain.png"))
+utils.createColorLegend(R, theta, join(odir, "fpp_colorLegend.svg"))
+utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "fpp_brain.svg"))
 
-fname = join(odir, "fpp_circleOfCorr12.png")
+fname = join(odir, "fpp_circleOfCorr12.svg")
 utils.plotFS(floads, eigs, col=hcols2, fname=fname)
 
 #t = np.zeros(loadings.values.shape[0])
 #t[58:] = 1
 #color = [hcols1] + [hcols2]
-#fname = join(odir, "all_loadings.png")
+#fname = join(odir, "all_loadings.svg")
 #utils.plotFS(loadings.values[:, 0:2], eigs, t, col=color, fname=fname)
