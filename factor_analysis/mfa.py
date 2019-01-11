@@ -29,7 +29,7 @@ fclusterDf = pd.read_csv(fcluster, header=None, index_col=0)
 jcluster = r"../k_means/seed_networks/3kSolution.csv"
 jclusterDf = pd.read_csv(jcluster, header=None, index_col=0)
 
-odir = join(os.getcwd(), "mfa")
+odir = join(os.getcwd(), "mfa_3factor")
 if not isdir(odir):
     os.mkdir(odir)
 
@@ -59,8 +59,9 @@ groups = {}
 groups['icaNetworks'] = [c for c in list(Z) if "icaNet" in c]
 groups['fpp'] = [c for c in list(Z) if "fpp" in c]
 
+n_factors = 3
 mfa = prince.MFA(groups=groups,
-                 n_components=4,
+                 n_components=n_factors,
                  n_iter=3,
                  copy=True,
                  check_input=False,
@@ -74,14 +75,15 @@ sqloadings.to_csv(join(odir, "sqloadings.csv"))
 factorScores = mfa.row_coordinates(Z)
 factorScores.to_csv(join(odir, "factorScores.csv"))
 
-f = r"../k_means/combinedNetworkFPP/3kSolution.csv"
+f = r"../k_means/seed_combined/3kSolution.csv"
 kCombined = pd.read_csv(f, index_col=0, header=None)
-col = pu.node_color_generator(catColors, kCombined.values)
+col = pu.node_color_generator(catColors, kCombined.values[:, 0])
 
 fs = factorScores.values[:, 0:2]
 #utils.plotCircleOfCorrMFA(fs, eigs, col=col, fname=join(odir, "fs.png"))
 fsn = utils.normTo1(fs)
 utils.plotFS(fsn, eigs, 'c', col=col, fname=join(odir, "fs_normalized.png"))
+
 R, theta, rgb = utils.createColorSpace(fsn)
 rgb[rgb > 1] = 1
 utils.createColorLegend(R, theta, join(odir, "fs_colorLegend.png"))
@@ -112,7 +114,7 @@ reorderedSol = []
 for sf in list(icaNetLoadings.index):
     for i,sl in enumerate(list(fclusterDf.index)):
         if sl in sf:
-            reorderedSol.append(fclusterDf.values[i])
+            reorderedSol.append(fclusterDf.values[i, 0])
 hcols2 = pu.node_color_generator(catColors, np.asarray(reorderedSol))
 
 floads = fppLoadings.values[:,0:2]
@@ -123,9 +125,8 @@ utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "fpp_brain.png"))
 fname = join(odir, "fpp_circleOfCorr12.png")
 utils.plotFS(floads, eigs, col=hcols2, fname=fname)
 
-t = np.zeros(loadings.values.shape[0])
-t[58:] = 1
-color = [hcols1] + [hcols2]
-
-#fname = join(odir, "test.png")
+#t = np.zeros(loadings.values.shape[0])
+#t[58:] = 1
+#color = [hcols1] + [hcols2]
+#fname = join(odir, "all_loadings.png")
 #utils.plotFS(loadings.values[:, 0:2], eigs, t, col=color, fname=fname)
