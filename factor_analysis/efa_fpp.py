@@ -48,7 +48,7 @@ dataDf = pd.DataFrame(data, columns=seedList, index=seedList)
 
 #--- Running PCA to determine number of factors ---#
 eigs, p, percent = utils.permPCA(dataDf.values)
-utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
+utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.svg"))
 
 #--- Running FA ---#
 rot = None
@@ -72,9 +72,9 @@ eig_df[eig_cols[2]] = percent
 eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 R, theta, rgb = utils.createColorSpace(f)
-utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.png" % str(rot)))
-utils.plotBrains(coords, rgb, join(odir, "%s_brain.png" % str(rot)))
-fn = join(odir, "%s_circleCorr.png") % str(rot)
+utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.svg" % str(rot)))
+utils.plotBrains(coords, rgb, join(odir, "%s_brain.svg" % str(rot)))
+fn = join(odir, "%s_circleCorr.svg") % str(rot)
 utils.plotFS(f, e, 'l', col=hcols, fname=fn)
 
 rot = 'varimax'
@@ -90,7 +90,7 @@ orig_eigs, com_eigs = fa.get_eigenvalues()
 e = np.ndarray.flatten(com_eigs.values)
 
 R, theta, rgb = utils.createColorSpace(f)
-utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.png" % str(rot)))
-utils.plotBrains(coords, rgb, join(odir, "%s_brain.png" % str(rot)))
-fn = join(odir, "%s_circleCorr.png") % str(rot)
+utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.svg" % str(rot)))
+utils.plotBrains(coords, rgb, join(odir, "%s_brain.svg" % str(rot)))
+fn = join(odir, "%s_circleCorr.svg") % str(rot)
 utils.plotFS(f, e, 'l', col=hcols, fname=fn)

@@ -81,6 +81,14 @@ sqloadings.to_csv(join(odir, "sqloadings.csv"))
 factorScores = mfa.row_coordinates(Z)
 factorScores.to_csv(join(odir, "factorScores.csv"))
 
+percent = (np.multiply(100, eigs)) / np.sum(eigs)
+eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
+eig_df = pd.DataFrame(columns=eig_cols)
+eig_df[eig_cols[0]] = eigs
+eig_df[eig_cols[1]] = p
+eig_df[eig_cols[2]] = percent
+eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
+
 f = r"../k_means/seed_combined/3kSolution.csv"
 kCombined = pd.read_csv(f, index_col=0, header=None)
 col = pu.node_color_generator(catColors, kCombined.values[:, 0])

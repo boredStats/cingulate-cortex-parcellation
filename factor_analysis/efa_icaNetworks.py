@@ -42,8 +42,8 @@ data = utils.centerMat(jaccardCorr.values)
 dataDf = pd.DataFrame(data, columns=seedList, index=seedList)
 
 #--- Running PCA to determine number of factors ---#
-eigs, p, percent = utils.permPCA(dataDf.values)
-utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
+eigs, p, _ = utils.permPCA(dataDf.values)
+utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.svg"))
 
 #--- Running eFA ---#
 rotation = None
@@ -68,21 +68,21 @@ eig_df[eig_cols[2]] = percent
 eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 R, theta, rgb = utils.createColorSpace(loadings.values)
-utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.png" % rotName))
-utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "%s_brain.png" % rotName))
+utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.svg" % rotName))
+utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "%s_brain.svg" % rotName))
 
-fname = join(odir, "%s_circleOfCorr12.png") % rotName
+fname = join(odir, "%s_circleOfCorr12.svg") % rotName
 ls = loadings.values[:, 0:2]
-utils.plotFS(ls, eigs, 'c', col=hcols, fname=fname)
+utils.plotFS(ls, e, 'l', col=hcols, fname=fname)
 
-#fname = join(odir, "%s_circleOfCorr23.png") % rotName
+#fname = join(odir, "%s_circleOfCorr23.svg") % rotName
 #utils.plotCircleOfCorr(fa, [2, 3], hcols, fname=fname)
-#fname = join(odir, "%s_circleOfCorr13.png") % rotName
+#fname = join(odir, "%s_circleOfCorr13.svg") % rotName
 #utils.plotCircleOfCorr(fa, [1, 3], hcols, fname=fname)
 
 #for i in range(len(list(loadings))):
 #    rgba = utils.generateLoadColors(cpairs[i], loadings.values[:, i])
-#    fname = join(odir, "%s_brainFactor%d.png" % (rotName, (i+1)))
+#    fname = join(odir, "%s_brainFactor%d.svg" % (rotName, (i+1)))
 #    utils.plotBrains(pData['coordsMNI'], rgba, fname)
 
 #--- Rotating subspace ---#
@@ -96,19 +96,19 @@ loadings.to_csv(join(odir, "%s_loadings.csv" % rotName))
 sqloadings.to_csv(join(odir, "%s_sqloadings.csv" % rotName))
 
 R, theta, rgb = utils.createColorSpace(loadings.values)
-utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.png" % rotName))
-utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "%s_brain.png" % rotName))
+utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.svg" % rotName))
+utils.plotBrains(pData['coordsMNI'], rgb, join(odir, "%s_brain.svg" % rotName))
 
-fname = join(odir, "%s_circleOfCorr12.png") % rotName
+fname = join(odir, "%s_circleOfCorr12.svg") % rotName
 ls = loadings.values[:, 0:2]
-utils.plotFS(ls, eigs, 'c', col=hcols, fname=fname)
+utils.plotFS(ls, e, 'l', col=hcols, fname=fname)
 
-#fname = join(odir, "%s_circleOfCorr23.png") % rotName
+#fname = join(odir, "%s_circleOfCorr23.svg") % rotName
 #utils.plotCircleOfCorr(fa, [2, 3], hcols, fname=fname)
-#fname = join(odir, "%s_circleOfCorr13.png") % rotName
+#fname = join(odir, "%s_circleOfCorr13.svg") % rotName
 #utils.plotCircleOfCorr(fa, [1, 3], hcols, fname=fname)
 
 #for i in range(len(list(loadings))):
 #    rgba = utils.generateLoadColors(cpairs[i], loadings.values[:, i])
-#    fname = join(odir, "%s_brainFactor%d.png" % (rotName, (i+1)))
+#    fname = join(odir, "%s_brainFactor%d.svg" % (rotName, (i+1)))
 #    utils.plotBrains(pData['coordsMNI'], rgba, fname)
