@@ -55,12 +55,6 @@ colnames = colJ + colF
 Z = pd.DataFrame(X, index=seedList, columns=colnames)
 eigs, p, percent = utils.permPCA(Z.values)
 utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
-eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
-eig_df = pd.DataFrame(columns=eig_cols)
-eig_df[eig_cols[0]] = eigs
-eig_df[eig_cols[1]] = p
-eig_df[eig_cols[2]] = percent
-eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 groups = {}
 groups['icaNetworks'] = [c for c in list(Z) if "icaNet" in c]
@@ -85,7 +79,7 @@ percent = (np.multiply(100, eigs)) / np.sum(eigs)
 eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
 eig_df = pd.DataFrame(columns=eig_cols)
 eig_df[eig_cols[0]] = eigs
-eig_df[eig_cols[1]] = p
+eig_df[eig_cols[1]] = p[len(eigs)]
 eig_df[eig_cols[2]] = percent
 eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 

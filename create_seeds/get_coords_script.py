@@ -18,17 +18,17 @@ file = "callosal_curve_coordinates_excel.xlsx"
 sheets = ["UpperCurveCoords", "LowerCurveCoords"]
 cc_coords = pd.read_excel(file, sheet_name=sheets, header=None)
 
-ant_cc_2d = cc_coords['UpperCurveCoords'].values[:, 1:]
-post_cc_2d = cc_coords['LowerCurveCoords'].values[:, 1:]
+poly1_cc_2d = cc_coords['UpperCurveCoords'].values[:, 1:]
+poly2_cc_2d = cc_coords['LowerCurveCoords'].values[:, 1:]
 
 p = 2 #quadratic
 #--- Generate reference curve for anterior corpus callosum ---#
 x = np.arange(0, 60, .5)
 
-ant_x = ant_cc_2d[:, 0] * -1 #Inverting the "x-axis" so values are positive
-ant_y = ant_cc_2d[:, 1]
+poly1_x = poly1_cc_2d[:, 0] * -1 #Inverting the "x-axis" so values are positive
+poly1_y = poly1_cc_2d[:, 1]
 
-params = np.polyfit(ant_x, ant_y, p)
+params = np.polyfit(poly1_x, poly1_y, p)
 ant_cc = fgen(x, params[0], params[1], params[2])
 
 #--- Generating curves parallel to anterior corpus callosum ---#
@@ -43,10 +43,10 @@ ant_superior_curve = fgen(x, params[0], params[1], params[2])
 #--- Generate reference curve for posterior corpus callosum ---#
 x = np.arange(6, 40, .5)
 
-post_x = post_cc_2d[:, 0] * -1
-post_y = post_cc_2d[:, 1]
+poly2_x = poly2_cc_2d[:, 0] * -1
+poly2_y = poly2_cc_2d[:, 1]
 
-params = np.polyfit(post_x, post_y, p)
+params = np.polyfit(poly2_x, poly2_y, p)
 post_cc = fgen(x, params[0], params[1], params[2])
 
 #--- Generating curves parallel to posterior corpus callosum ---#
