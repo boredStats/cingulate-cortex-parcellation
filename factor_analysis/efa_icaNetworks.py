@@ -58,6 +58,8 @@ sqloadings.to_csv(join(odir, "%s_sqloadings.csv" % rotName))
 
 orig_eigs, com_eigs = fa.get_eigenvalues()
 e = np.ndarray.flatten(com_eigs.values)
+percent = (np.multiply(100, e)) / np.sum(e)
+
 eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
 eig_df = pd.DataFrame(columns=eig_cols)
 eig_df[eig_cols[0]] = e
