@@ -49,12 +49,6 @@ dataDf = pd.DataFrame(data, columns=seedList, index=seedList)
 #--- Running PCA to determine number of factors ---#
 eigs, p, percent = utils.permPCA(dataDf.values)
 utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
-eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
-eig_df = pd.DataFrame(columns=eig_cols)
-eig_df[eig_cols[0]] = eigs
-eig_df[eig_cols[1]] = p
-eig_df[eig_cols[2]] = percent
-eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 #--- Running FA ---#
 rot = None
@@ -67,7 +61,14 @@ sqloadings.to_csv(join(odir, "%s_sqloadings.csv" % str(rot)))
 
 f = loadings.values[:, 0:2]
 orig_eigs, com_eigs = fa.get_eigenvalues()
-e = com_eigs.values
+e = np.ndarray.flatten(com_eigs.values)
+
+eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
+eig_df = pd.DataFrame(columns=eig_cols)
+eig_df[eig_cols[0]] = e
+eig_df[eig_cols[1]] = p
+eig_df[eig_cols[2]] = percent
+eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 R, theta, rgb = utils.createColorSpace(f)
 utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.png" % str(rot)))
@@ -85,7 +86,7 @@ sqloadings.to_csv(join(odir, "%s_sqloadings.csv" % str(rot)))
 
 f = loadings.values[:, 0:2]
 orig_eigs, com_eigs = fa.get_eigenvalues()
-e = com_eigs.values
+e = np.ndarray.flatten(com_eigs.values)
 
 R, theta, rgb = utils.createColorSpace(f)
 utils.createColorLegend(R, theta, join(odir, "%s_colorLegend.png" % str(rot)))
