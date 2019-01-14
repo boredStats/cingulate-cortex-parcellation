@@ -73,7 +73,8 @@ def permPCA(data, nIters=1000):
         nHit = np.where(permArray[:, j] >= eigs[j])
         pval = (len(nHit[0]) + 1)/ (ns+1)
         p.append(pval)
-    return eigs, p
+    percentVar = (np.multiply(100, eigs)) / np.sum(eigs)
+    return eigs, p, percentVar
 
 def plotScree(eigenvalues, eigenPvals=None, kaiser=False, fname=None):
     """

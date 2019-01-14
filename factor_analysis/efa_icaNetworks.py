@@ -8,10 +8,13 @@ import os
 import numpy as np
 import pandas as pd
 import pickle as pkl
-import proj_utils as pu
 import efaUtils as utils
 from factor_analyzer import FactorAnalyzer
 from os.path import join
+
+import sys
+sys.path.append("..")
+import proj_utils as pu
 
 with open(r"../pData.pkl", "rb") as f:
     pData = pkl.load(f)
@@ -39,8 +42,14 @@ data = utils.centerMat(jaccardCorr.values)
 dataDf = pd.DataFrame(data, columns=seedList, index=seedList)
 
 #--- Running PCA to determine number of factors ---#
-eigs, p = utils.permPCA(dataDf.values)
+eigs, p, percent = utils.permPCA(dataDf.values)
 utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
+eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
+eig_df = pd.DataFrame(columns=eig_cols)
+eig_df[eig_cols[0]] = eigs
+eig_df[eig_cols[1]] = p
+eig_df[eig_cols[2]] = percent
+eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 #--- Running eFA ---#
 rotation = None

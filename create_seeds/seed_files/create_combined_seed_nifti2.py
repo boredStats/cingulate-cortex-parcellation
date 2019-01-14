@@ -56,3 +56,43 @@ mask_nifti = nib.Nifti1Image(mask_vol,affine=seed_example_affine)
 
 mask_fname = "all_seeds_indexed.nii.gz" 
 nib.save(mask_nifti,os.path.join(os.getcwd(),mask_fname))
+
+"""
+Create ACC nifti 
+"""
+acc_rois = [os.path.join(nifti_dir, r) for r in os.listdir(nifti_dir) if "ACC" in r]
+vect_length = np.prod(seed_example_dims)
+mask_vector = np.zeros(shape=[vect_length])
+
+for file in acc_rois:
+    seed = nib.load(file)
+    seed_data = seed.get_data()
+    
+    seed_vector = np.reshape(seed_data,vect_length)
+    
+    mask_vector[seed_vector==1] = 1
+mask_vol = np.reshape(mask_vector,seed_example_dims)
+mask_nifti = nib.Nifti1Image(mask_vol,affine=seed_example_affine)
+
+mask_fname = "acc_seeds.nii.gz" 
+nib.save(mask_nifti, mask_fname)
+"""
+Create PCC nifti 
+"""
+pcc_rois = [os.path.join(nifti_dir, r) for r in os.listdir(nifti_dir) if "PCC" in r]
+vect_length = np.prod(seed_example_dims)
+mask_vector = np.zeros(shape=[vect_length])
+
+for file in pcc_rois:
+    seed = nib.load(file)
+    seed_data = seed.get_data()
+    
+    seed_vector = np.reshape(seed_data,vect_length)
+    
+    mask_vector[seed_vector==1] = 1
+mask_vol = np.reshape(mask_vector,seed_example_dims)
+mask_nifti = nib.Nifti1Image(mask_vol,affine=seed_example_affine)
+
+mask_fname = "pcc_seeds.nii.gz" 
+nib.save(mask_nifti, mask_fname)
+

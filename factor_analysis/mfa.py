@@ -29,7 +29,7 @@ fclusterDf = pd.read_csv(fcluster, header=None, index_col=0)
 jcluster = r"../k_means/seed_networks/3kSolution.csv"
 jclusterDf = pd.read_csv(jcluster, header=None, index_col=0)
 
-n_factors = 3
+n_factors = 4
 odir = join(os.getcwd(), "mfa_%dfactor" % n_factors)
 if not isdir(odir):
     os.mkdir(odir)
@@ -53,8 +53,14 @@ X[:, 58:] = dataF
 colnames = colJ + colF
 
 Z = pd.DataFrame(X, index=seedList, columns=colnames)
-eigs, p = utils.permPCA(Z.values)
-utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.svg"))
+eigs, p, percent = utils.permPCA(Z.values)
+utils.plotScree(eigs, p, kaiser=False, fname=join(odir, "scree.png"))
+eig_cols = ['eigenvalues', 'p_value', 'percent_variance_explained']
+eig_df = pd.DataFrame(columns=eig_cols)
+eig_df[eig_cols[0]] = eigs
+eig_df[eig_cols[1]] = p
+eig_df[eig_cols[2]] = percent
+eig_df.to_csv(os.path.join(odir, 'eigenvalues.csv'))
 
 groups = {}
 groups['icaNetworks'] = [c for c in list(Z) if "icaNet" in c]
