@@ -1,0 +1,476 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Seed Generation Demo</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-15"><meta name="DC.source" content="seed_generation_notebook.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Seed Generation Demo</h1><!--introduction--><p>This notebook is a demonstration of how cingulate seed coordinates were determined for this project.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Introduction</a></li><li><a href="#3">Modelling the corpus callosum</a></li><li><a href="#7">Creating reference curves for coordinate selection</a></li><li><a href="#11">Final reference model</a></li><li><a href="#13">Selecting seed coordinates</a></li></ul></div><h2>Introduction<a name="1"></a></h2><p>The method is from Margulies et al. 2009. Seed coordinates were determined using three rules, listed here in order of precedence:</p><div><ol><li>Seed coordinates are at least 10mm apart.</li><li>The lower seed coordinates are at least 5mm away from the corpus callosum</li><li>The upper seed coordinates are at least 10mm away from the lower seeds.</li></ol></div><p>The first step is to model the curves of the corpus callosum. This was carried out using the MNI 152 brain, using the curvature of the corpus callosum at x=5.</p><pre class="codeinput"><span class="comment">%Prep work</span>
+clear <span class="string">variables</span>
+addpath(genpath(<span class="string">'./sgen_notebook_data/support_code'</span>));
+<span class="comment">%Figure parameters</span>
+fig_width = 700;
+fig_height = 600;
+xlims = [-65 0];
+ylims = [0 50];
+<span class="comment">%xlab = '(MNI_y)\times-1';</span>
+xlab = <span class="string">'MNI_y'</span>;
+ylab = <span class="string">'MNI_z'</span>;
+<span class="comment">%Load MNI 152 T1 slice image</span>
+imshow(<span class="string">'./sgen_notebook_data/mni_152_slice_c.png'</span>)
+snapnow
+close(gcf)
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_01.png" alt=""> <h2>Modelling the corpus callosum<a name="3"></a></h2><p>As you can see from the anatomical image, the shape of the posterior corpus callosum is not amenable to being modeled as one curve. Therefore, we modeled it using an intersection of two second-order polynomials.</p><p>The curves were calculated by recording the boundary coordinates of the corpus callousm. Then those coordinates were split into two sets of coordinates on which a second-order polynomial solution could be fitted onto.</p><p>Note: because we are restricted to 1mm voxel space, the shape of the corpus callosum can only be described using whole numbers (see anatomical image for reference). However, this allows us to treatthe coordinates as if we are in Cartesian space.</p><pre class="codeinput">anterior_cc_coords = xlsread(<span class="string">'./sgen_notebook_data/callosal_curve_coordinates_cleaned.xlsx'</span>, <span class="string">'UpperCurveCoords'</span>);
+posterior_cc_coords = xlsread(<span class="string">'./sgen_notebook_data/callosal_curve_coordinates_cleaned.xlsx'</span>, <span class="string">'LowerCurveCoords'</span>);
+
+<span class="comment">%Taking the y, z coordinates to focus on the sagittal curve</span>
+anterior_cc_yz = anterior_cc_coords(:,2:3);
+posterior_cc_yz = posterior_cc_coords(:,2:3);
+
+<span class="comment">%%Corpus callosum modeled in Cartesian space</span>
+figure;
+hold <span class="string">on</span>
+title(<span class="string">'Modelling the corpus callosum in Cartesian space'</span>);
+xlabel(xlab);
+ylabel(ylab);
+xlim(xlims);
+ylim(ylims);
+<span class="comment">%Coordinate that divides the set of coords</span>
+midPoint = plot(-40, 27, <span class="string">'*k'</span>);
+<span class="comment">%Anterior coordinates</span>
+len = length(anterior_cc_yz);
+aset_1 = anterior_cc_yz(2:len, 1);
+aset_2 = anterior_cc_yz(2:len, 2);
+anterior_cc_plot = plot(aset_1, aset_2, <span class="string">'ob'</span>);
+<span class="comment">%Posterior coordinates</span>
+len = length(posterior_cc_yz);
+pset_1 = posterior_cc_yz(2:len, 1);
+pset_2 = posterior_cc_yz(2:len, 2);
+posterior_cc_plot = plot(pset_1, pset_2,<span class="string">'or'</span>);
+
+leg_sub = [midPoint(1), anterior_cc_plot(1), posterior_cc_plot(1)];
+legend(leg_sub,<span class="string">'Dividing coordinate'</span>,<span class="keyword">...</span>
+    <span class="string">'Anterior coordinates'</span>,<span class="string">'Posterior coordinates'</span>,<span class="string">'Location'</span>,<span class="string">'northwest'</span>);
+
+set(gcf, <span class="string">'Position'</span>, [100 100 fig_width fig_height],<span class="keyword">...</span>
+    <span class="string">'PaperPositionMode'</span>, <span class="string">'auto'</span>);
+snapnow
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_02.png" alt=""> <p>Using the two sets of coordinates, we'll solve some second-order polynomials. Then we'll intersect the resulting curves to create a model of the posterior corpus callosum.</p><pre class="codeinput">x_in = 0:.5:60;
+xa_ = -66:.2:-1;
+xb_ = 0:.2:60;
+<span class="comment">%Anterior callosal model</span>
+xa = anterior_cc_yz(:,1);
+ya = anterior_cc_yz(:,2);
+params = polyfit(xa, ya, 2);
+anterior_polynomial = @(x) params(1)*x.^2 +params(2)*x + params(3);
+ant_cc_line = anterior_polynomial(x_in);
+
+<span class="comment">%Posterior callosal model</span>
+xb = posterior_cc_yz(:,2); <span class="comment">%Switch y-axis and x-axis</span>
+yb = posterior_cc_yz(:,1);
+params = polyfit(xb, yb, 2);
+posterior_polynomial = @(x) params(1)*x.^2 + params(2)*x + params(3);
+post_cc_line = posterior_polynomial(x_in);
+
+<span class="comment">%Adding polynomials to plot</span>
+ant_model = plot(xa_, anterior_polynomial(xa_), <span class="string">'b'</span>);
+post_model = plot(posterior_polynomial(xb_), xb_, <span class="string">'r'</span>);
+
+set(gcf,<span class="string">'Position'</span>,[100 100 fig_width fig_height],<span class="keyword">...</span>
+    <span class="string">'PaperPositionMode'</span>,<span class="string">'auto'</span>);
+snapnow
+<span class="comment">%close(gcf);</span>
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_03.png" alt=""> <h2>Creating reference curves for coordinate selection<a name="7"></a></h2><p>Now that we have a model of the shape of the corpus callosum, we can generate reference curves that will be 5 and 15mm away from it. These new curves are calculated using a parallel curve function (see notebook_data).</p><pre class="codeinput"><span class="comment">%Calculating anterior 5mm reference</span>
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, ant_cc_line, 5, 0);
+UC_infEqVals = polyfit(x_outer, y_outer, 2);
+UC_infEq = @(x) UC_infEqVals(1)*x.^2 + UC_infEqVals(2)*x + UC_infEqVals(3);
+UC_infLine = UC_infEq(x_in);
+
+<span class="comment">%Calculating posterior 5mm reference</span>
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, post_cc_line, 5, 0);
+LC_infEqVals = polyfit(x_outer, y_outer, 2);
+LC_infEq = @(x) LC_infEqVals(1)*x.^2 + LC_infEqVals(2)*x + LC_infEqVals(3);
+LC_infLine = LC_infEq(x_in);
+
+title(<span class="string">'Reference curves - 5mm away from corpus callosum'</span>);
+inf_line_1 = plot(xa_, UC_infEq(xa_), <span class="string">'b:'</span>);
+inf_line_2 = plot(LC_infEq(xb_), xb_, <span class="string">'r:'</span>);
+
+leg_sub = [inf_line_1(1), inf_line_2(1)];
+legend(leg_sub, <span class="string">'Anterior 5mm reference'</span>,<span class="string">'Posterior 5mm reference'</span>,<span class="keyword">...</span>
+    <span class="string">'Location'</span>,<span class="string">'northwest'</span>);
+snapnow
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_04.png" alt=""> <p>Now that we have our 5mm reference, let's add the 10mm reference.</p><pre class="codeinput"><span class="comment">%Calculating anterior 10mm reference</span>
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, UC_infLine, 10, 0);
+UC_supEqVals = polyfit(x_outer, y_outer, 2);
+UC_supEq = @(x) UC_supEqVals(1)*x.^2 + UC_supEqVals(2)*x + UC_supEqVals(3);
+UC_supLine = UC_supEq(x_in);
+
+<span class="comment">%Calculating posterior 10mm reference</span>
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, LC_infLine, 10, 0);
+LC_supEqVals = polyfit(x_outer,y_outer,2);
+LC_supEq = @(x) LC_supEqVals(1)*x.^2 + LC_supEqVals(2)*x + LC_supEqVals(3);
+LC_supLine = LC_supEq(x_in);
+
+title(<span class="string">'Reference curves - 10mm away from corpus callosum'</span>);
+sup_line_1 = plot(xa_, UC_supEq(xa_), <span class="string">'b:'</span>);
+sup_line_2 = plot(LC_supEq(xb_), xb_, <span class="string">'r:'</span>);
+
+leg_sub = [sup_line_1(1), sup_line_2(1)];
+legend(leg_sub, <span class="string">'Anterior 10mm reference'</span>,<span class="string">'Posterior 10mm reference'</span>,<span class="keyword">...</span>
+    <span class="string">'Location'</span>,<span class="string">'northwest'</span>);
+snapnow
+close(gcf)
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_05.png" alt=""> <h2>Final reference model<a name="11"></a></h2><p>Now that we have a reference on where we should center our seed coordinates, we can start choosing proper seed coordinates. As this method is a replication of the Margulies et al. 2009 study, we use their posterior-most seeds as a starting point.</p><pre class="codeinput"><span class="comment">%Replotting and trimming the model, reference curves for clarity</span>
+figure;
+hold <span class="string">on</span>
+title(<span class="string">'Modelling the corpus callosum in Cartesian space'</span>);
+xlabel(xlab);
+ylabel(ylab);
+xlim(xlims);
+ylim(ylims);
+
+original_inferior = plot(-10, 37,<span class="string">'kx'</span>);
+original_superior = plot(-10,47,<span class="string">'kx'</span>);
+
+UCMx = -42:.1:0;
+LCMx = 0:.1:29;
+UpperCurveModel = plot(UCMx, anterior_polynomial(UCMx), <span class="string">'b'</span>);
+LowerCurveModel = plot(posterior_polynomial(LCMx), LCMx,<span class="string">'r'</span>);
+
+UISCx = -44:.1:0;
+LISCx = 0:.1:33;
+UpperInferiorSeedCurve = plot(UISCx, UC_infEq(UISCx),<span class="string">'b--'</span>);
+LowerInferiorSeedCurve = plot(LC_infEq(LISCx),LISCx,<span class="string">'r--'</span>);
+
+USSCx = -48:.1:0;
+LSSCx = 0:.1:43;
+UpperSuperiorSeedCurve = plot(USSCx,UC_supEq(USSCx),<span class="string">'b:'</span>,<span class="string">'LineWidth'</span>,1);
+LowerSuperiorSeedCurve = plot(LC_supEq(LSSCx),LSSCx,<span class="string">'r:'</span>,<span class="string">'LineWidth'</span>,1);
+
+leg_sub = [original_inferior(1)];
+legend(leg_sub, <span class="string">'Starting reference'</span>,<span class="string">'Location'</span>,<span class="string">'southwest'</span>);
+snapnow
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_06.png" alt=""> <h2>Selecting seed coordinates<a name="13"></a></h2><p>Instead of going through the pain-staking process of making sure that coordinates adhered to the reference lines as closely as possible and were at least 10mm apart, we'll display the final results and include 10mm spheres centered on the final yz-coordinates to ensure 10mm spacing.</p><pre class="codeinput">inferior_seeds = [-20	36
+-30	35
+-40	33
+-48	26
+-53	17
+-51	7];
+
+inf_seeds = plot(inferior_seeds(:,1),inferior_seeds(:,2),<span class="string">'ok'</span>,<span class="string">'MarkerSize'</span>,3.5,<span class="string">'MarkerFaceColor'</span>,<span class="string">'k'</span>);
+circle(-10,37,10);
+<span class="keyword">for</span> index = 1:length(inferior_seeds)
+    circle(inferior_seeds(index,1),inferior_seeds(index,2),10);
+<span class="keyword">end</span>
+
+superior_seeds = [-20	46
+-30	45
+-40	43
+-50	39
+-57 31
+-62	22
+-63 12];
+k = plot(superior_seeds(:,1),superior_seeds(:,2),<span class="string">'ok'</span>,<span class="string">'MarkerSize'</span>,3.5,<span class="string">'MarkerFaceColor'</span>,<span class="string">'k'</span>);
+circle(-10,47,10);
+<span class="keyword">for</span> index = 1:length(superior_seeds)
+    circle(superior_seeds(index,1),superior_seeds(index,2),10);
+<span class="keyword">end</span>
+rad_ref = plot(1000,1000,<span class="string">':k'</span>);
+legend_subset = [k(1), rad_ref(1)];
+legend(legend_subset,<span class="string">'Final seed coordinates'</span>,<span class="string">'10mm sphere'</span>,<span class="string">'Location'</span>,<span class="string">'southwest'</span>);
+snapnow
+close(gcf)
+</pre><img vspace="5" hspace="5" src="seed_generation_notebook_07.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Seed Generation Demo
+% This notebook is a demonstration of how cingulate seed coordinates were determined for this project.
+%% Introduction
+% The method is from Margulies et al. 2009. Seed coordinates were determined using three rules, listed here in order of precedence:
+% 
+% # Seed coordinates are at least 10mm apart.
+% # The lower seed coordinates are at least 5mm away from the corpus callosum
+% # The upper seed coordinates are at least 10mm away from the lower seeds.
+% 
+% The first step is to model the curves of the corpus callosum. This was carried out using the MNI 152 brain, using the curvature of the corpus callosum at x=5.
+%%
+%Prep work
+clear variables
+addpath(genpath('./sgen_notebook_data/support_code'));
+%Figure parameters
+fig_width = 700;
+fig_height = 600;
+xlims = [-65 0];
+ylims = [0 50];
+%xlab = '(MNI_y)\times-1';
+xlab = 'MNI_y';
+ylab = 'MNI_z';
+%Load MNI 152 T1 slice image
+imshow('./sgen_notebook_data/mni_152_slice_c.png')
+snapnow
+close(gcf)
+%% Modelling the corpus callosum
+% As you can see from the anatomical image, the shape of the posterior
+% corpus callosum is not amenable to being modeled as one curve. Therefore,
+% we modeled it using an intersection of two second-order polynomials. 
+% 
+% The curves were calculated by recording the boundary coordinates of the
+% corpus callousm. Then those coordinates were split into two sets of
+% coordinates on which a second-order polynomial solution could be fitted
+% onto.
+% 
+% Note: because we are restricted to 1mm voxel space, the shape of the
+% corpus callosum can only be described using whole numbers (see anatomical
+% image for reference). However, this allows us to treatthe coordinates as
+% if we are in Cartesian space.
+%%
+anterior_cc_coords = xlsread('./sgen_notebook_data/callosal_curve_coordinates_cleaned.xlsx', 'UpperCurveCoords');
+posterior_cc_coords = xlsread('./sgen_notebook_data/callosal_curve_coordinates_cleaned.xlsx', 'LowerCurveCoords');
+
+%Taking the y, z coordinates to focus on the sagittal curve
+anterior_cc_yz = anterior_cc_coords(:,2:3); 
+posterior_cc_yz = posterior_cc_coords(:,2:3);
+
+%%Corpus callosum modeled in Cartesian space
+figure;
+hold on
+title('Modelling the corpus callosum in Cartesian space');
+xlabel(xlab);
+ylabel(ylab);
+xlim(xlims);
+ylim(ylims);
+%Coordinate that divides the set of coords
+midPoint = plot(-40, 27, '*k');
+%Anterior coordinates
+len = length(anterior_cc_yz);
+aset_1 = anterior_cc_yz(2:len, 1);
+aset_2 = anterior_cc_yz(2:len, 2);
+anterior_cc_plot = plot(aset_1, aset_2, 'ob');
+%Posterior coordinates
+len = length(posterior_cc_yz);
+pset_1 = posterior_cc_yz(2:len, 1);
+pset_2 = posterior_cc_yz(2:len, 2);
+posterior_cc_plot = plot(pset_1, pset_2,'or');
+
+leg_sub = [midPoint(1), anterior_cc_plot(1), posterior_cc_plot(1)];
+legend(leg_sub,'Dividing coordinate',...
+    'Anterior coordinates','Posterior coordinates','Location','northwest');
+
+set(gcf, 'Position', [100 100 fig_width fig_height],...
+    'PaperPositionMode', 'auto');
+snapnow
+%%
+% Using the two sets of coordinates, we'll solve some second-order
+% polynomials. Then we'll intersect the resulting curves to create a model
+% of the posterior corpus callosum.
+%%
+x_in = 0:.5:60;
+xa_ = -66:.2:-1;
+xb_ = 0:.2:60;
+%Anterior callosal model
+xa = anterior_cc_yz(:,1);
+ya = anterior_cc_yz(:,2);
+params = polyfit(xa, ya, 2);
+anterior_polynomial = @(x) params(1)*x.^2 +params(2)*x + params(3);
+ant_cc_line = anterior_polynomial(x_in);
+
+%Posterior callosal model
+xb = posterior_cc_yz(:,2); %Switch y-axis and x-axis
+yb = posterior_cc_yz(:,1);
+params = polyfit(xb, yb, 2);
+posterior_polynomial = @(x) params(1)*x.^2 + params(2)*x + params(3);
+post_cc_line = posterior_polynomial(x_in);
+
+%Adding polynomials to plot
+ant_model = plot(xa_, anterior_polynomial(xa_), 'b');
+post_model = plot(posterior_polynomial(xb_), xb_, 'r');
+
+set(gcf,'Position',[100 100 fig_width fig_height],...
+    'PaperPositionMode','auto');
+snapnow
+%close(gcf);
+%% Creating reference curves for coordinate selection
+% Now that we have a model of the shape of the corpus callosum, we can
+% generate reference curves that will be 5 and 15mm away from it. These new
+% curves are calculated using a parallel curve function (see
+% notebook_data).
+%%
+%Calculating anterior 5mm reference
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, ant_cc_line, 5, 0);
+UC_infEqVals = polyfit(x_outer, y_outer, 2);
+UC_infEq = @(x) UC_infEqVals(1)*x.^2 + UC_infEqVals(2)*x + UC_infEqVals(3);
+UC_infLine = UC_infEq(x_in);
+
+%Calculating posterior 5mm reference
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, post_cc_line, 5, 0);
+LC_infEqVals = polyfit(x_outer, y_outer, 2);
+LC_infEq = @(x) LC_infEqVals(1)*x.^2 + LC_infEqVals(2)*x + LC_infEqVals(3);
+LC_infLine = LC_infEq(x_in);
+
+title('Reference curves - 5mm away from corpus callosum');
+inf_line_1 = plot(xa_, UC_infEq(xa_), 'b:');
+inf_line_2 = plot(LC_infEq(xb_), xb_, 'r:');
+
+leg_sub = [inf_line_1(1), inf_line_2(1)];
+legend(leg_sub, 'Anterior 5mm reference','Posterior 5mm reference',...
+    'Location','northwest');
+snapnow
+%%
+% Now that we have our 5mm reference, let's add the 10mm reference.
+%%
+%Calculating anterior 10mm reference
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, UC_infLine, 10, 0);
+UC_supEqVals = polyfit(x_outer, y_outer, 2);
+UC_supEq = @(x) UC_supEqVals(1)*x.^2 + UC_supEqVals(2)*x + UC_supEqVals(3);
+UC_supLine = UC_supEq(x_in);
+
+%Calculating posterior 10mm reference
+[~, ~, x_outer, y_outer, ~, ~, ~, ~] = parallel_curve(x_in, LC_infLine, 10, 0);
+LC_supEqVals = polyfit(x_outer,y_outer,2);
+LC_supEq = @(x) LC_supEqVals(1)*x.^2 + LC_supEqVals(2)*x + LC_supEqVals(3);
+LC_supLine = LC_supEq(x_in);
+
+title('Reference curves - 10mm away from corpus callosum');
+sup_line_1 = plot(xa_, UC_supEq(xa_), 'b:');
+sup_line_2 = plot(LC_supEq(xb_), xb_, 'r:');
+
+leg_sub = [sup_line_1(1), sup_line_2(1)];
+legend(leg_sub, 'Anterior 10mm reference','Posterior 10mm reference',...
+    'Location','northwest');
+snapnow
+close(gcf)
+%% Final reference model
+% Now that we have a reference on where we should center our seed
+% coordinates, we can start choosing proper seed coordinates. As this
+% method is a replication of the Margulies et al. 2009 study, we use their
+% posterior-most seeds as a starting point.
+%% 
+%Replotting and trimming the model, reference curves for clarity
+figure;
+hold on
+title('Modelling the corpus callosum in Cartesian space');
+xlabel(xlab);
+ylabel(ylab);
+xlim(xlims);
+ylim(ylims);
+
+original_inferior = plot(-10, 37,'kx');
+original_superior = plot(-10,47,'kx');
+
+UCMx = -42:.1:0;
+LCMx = 0:.1:29;
+UpperCurveModel = plot(UCMx, anterior_polynomial(UCMx), 'b');
+LowerCurveModel = plot(posterior_polynomial(LCMx), LCMx,'r');
+
+UISCx = -44:.1:0;
+LISCx = 0:.1:33;
+UpperInferiorSeedCurve = plot(UISCx, UC_infEq(UISCx),'bREPLACE_WITH_DASH_DASH');
+LowerInferiorSeedCurve = plot(LC_infEq(LISCx),LISCx,'rREPLACE_WITH_DASH_DASH');
+
+USSCx = -48:.1:0;
+LSSCx = 0:.1:43;
+UpperSuperiorSeedCurve = plot(USSCx,UC_supEq(USSCx),'b:','LineWidth',1);
+LowerSuperiorSeedCurve = plot(LC_supEq(LSSCx),LSSCx,'r:','LineWidth',1);
+
+leg_sub = [original_inferior(1)];
+legend(leg_sub, 'Starting reference','Location','southwest');
+snapnow
+%% Selecting seed coordinates
+% Instead of going through the pain-staking process of making sure that
+% coordinates adhered to the reference lines as closely as possible and
+% were at least 10mm apart, we'll display the final results and include
+% 10mm spheres centered on the final yz-coordinates to ensure 10mm spacing.
+%%
+inferior_seeds = [-20	36
+-30	35
+-40	33
+-48	26
+-53	17
+-51	7];
+
+inf_seeds = plot(inferior_seeds(:,1),inferior_seeds(:,2),'ok','MarkerSize',3.5,'MarkerFaceColor','k');
+circle(-10,37,10);
+for index = 1:length(inferior_seeds)
+    circle(inferior_seeds(index,1),inferior_seeds(index,2),10);
+end
+
+superior_seeds = [-20	46
+-30	45
+-40	43
+-50	39
+-57 31 
+-62	22
+-63 12];
+k = plot(superior_seeds(:,1),superior_seeds(:,2),'ok','MarkerSize',3.5,'MarkerFaceColor','k');
+circle(-10,47,10);
+for index = 1:length(superior_seeds)
+    circle(superior_seeds(index,1),superior_seeds(index,2),10);
+end
+rad_ref = plot(1000,1000,':k');
+legend_subset = [k(1), rad_ref(1)];
+legend(legend_subset,'Final seed coordinates','10mm sphere','Location','southwest');
+snapnow
+close(gcf)
+##### SOURCE END #####
+--></body></html>
