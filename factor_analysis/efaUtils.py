@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 from sklearn.utils import resample
 from matplotlib.colors import hsv_to_rgb
 from adjustText import adjust_text #gg_repel for python
-from nilearn.plotting import plot_connectome
 from copy import deepcopy
 
 def centerMat(data):
@@ -138,13 +137,13 @@ def plotScree(eigenvalues, eigenPvals=None, kaiser=False, fname=None):
 #        ax3.set_yticklabels([])
 #        ax3.set_yticks([])
 
-    plt.show()
+    #plt.show()
     
     if fname:
         fig.savefig(fname, bbox_inches='tight')
-    return fig, ax, ax2
+    #return fig, ax, ax2
 
-def plotFS(f, eigs, atype='l', fs=[1, 2], tableKey=None, col=None, text=None, fname=None):
+def plotFS(f, eigs, ax, atype='L', fs=[1, 2], col=None, text=None):
     """
     Plot factor scores or factor loadings (circle of correlation)
     
@@ -157,93 +156,60 @@ def plotFS(f, eigs, atype='l', fs=[1, 2], tableKey=None, col=None, text=None, fn
     eigs : list or numpy array
         A list or vector of eigenvalues
         
-    Optional
-    --------
     type : string
         String to indicate if you're plotting factor scores or loadings
-        Defaults to 's' - plotting factor scores
-        
-    tableKey : list of length N
-        A list that indicates which observation belongs to which subtable
-        Used if plotting loadings from multiple subtables
+        Defaults to 'L' - plotting factor loadings (i.e. circle of correlation)
         
     fs : list
         A list indicating the factors being plotted
         Defaults to the first two factors
-    
-    col : list of colors
-        List of colors to assign to points on plot 
-        Defaults to black
-        If tablekey is provided, col will repeat
-    
-    text : list
-        List of strings to assign to points
-    
-    fname : filepath
-        Path to save image
         
+    Optional
+    --------
+    col : list of colors
+        List of colors to assign to points on plot - default is black points
+
+    text : list
+        List of string labels to assign to points
+
     See Abdi & Williams 2010 for more.
     """
     sns.set()
     sns.set_style("darkgrid", {"axes.facecolor": ".3", "grid.color": ".4"})
-    
-    markerList = ['o', 'd', 's']
-    
-    if tableKey:
-        keys = np.unique(tableKey)
-        plotData = []
-        for k in keys:
-            data = []
-            for i in range(f.shape[0]):
-                if k == tableKey[i]:
-                    data.append(f[i, :])
-            dataArray = np.asarray(data)
-            plotData.append(dataArray)
-        col = [col]*3
-    else:
-        col = [col]
-        plotData = []
-        plotData.append(f)
-                
-    f1 = int(fs[0])
-    f2 = int(fs[1])
+
+    fin_1 = int(fs[0])
+    fin_2 = int(fs[1])
 
     percentVar = (np.multiply(100, eigs)) / np.sum(eigs)
-    perToPlot = [percentVar[f1-1], percentVar[f2-1]]
+    perToPlot = [percentVar[fin_1-1], percentVar[fin_2-1]]
 
-    xlabel = "Factor %d (%.2f%% of variance explained)" % (f1, perToPlot[0])
-    ylabel = "Factor %d (%.2f%% of variance explained)" % (f2, perToPlot[1])
+    xlabel = "Factor %d (%.2f%% of variance explained)" % (fin_1, perToPlot[0])
+    ylabel = "Factor %d (%.2f%% of variance explained)" % (fin_2, perToPlot[1])
     
-    circ = plt.Circle((0, 0), radius=1, edgecolor='w', facecolor='None', linewidth=1, linestyle='--')
-    fig,ax = plt.subplots(figsize=(7.5,7.5))
-    if atype == 'l':
+#    fig = plt.figure(figsize=(7.5, 7.5))
+#    fig.add_subplot()
+#    ax = ax or plt.gca()
+    if atype == 'L':
+        kwargs = {'edgecolor':'w',
+                  'linewidth':1,
+                  'linestyle':'--',
+                  'fill':False}
+        circ = plt.Circle((0, 0), 1, **kwargs)
         ax.add_patch(circ)
         ax.set_xlim(-1, 1)
         ax.set_ylim(-1, 1)
-    for i,p in enumerate(plotData):
-        fs1 = p[:, 0]
-        fs2 = p[:, 1]
-        if col is None:
-            color = ['k']*len(fs1)
-        else:
-            color = col[i] 
-        ax.scatter(fs1, fs2, c=color, marker=markerList[i], zorder=99, s=75, alpha=.75)
-    
+
+    ax.scatter(f[:, 0], f[:, 1], c=col, zorder=99, s=75, alpha=.75)
     ax.axhline(0, color='w', linewidth=1)
     ax.axvline(0, color='w', linewidth=1)
-
     ax.set_xlabel(xlabel, fontsize='x-large')
     ax.set_ylabel(ylabel, fontsize='x-large')
-    if text is not None and len(text) == len(fs1):
+    
+    if text is not None and len(text) == len(f[:, 0]):
         texts = []
         for i,s in enumerate(text):
-            texts.append(ax.text(fs1[i], fs2[i], s, fontsize=10))
+            texts.append(ax.text(f[i, 0], f[i, 1], s, fontsize=10))
         adjust_text(texts)
-        
-    if fname:
-        fig.savefig(fname, bbox_inches='tight')
-    
-    plt.show()
 
 def createColorSpace(loadingsPair):
     #By JAH
@@ -264,14 +230,16 @@ def createColorSpace(loadingsPair):
     
     return R, theta, rgb
 
-def createColorLegend(R, theta, fname=None):
+def createColorLegend(R, theta, ax, fname=None):
     #By JAH
     mpl.rcParams.update(mpl.rcParamsDefault)
-    figsize = 7.5
+#    figsize = 7.5
 
-    fig = plt.figure(figsize=(figsize, figsize))
-    fig.patch.set_facecolor('w')
-    ax = fig.add_subplot(111, projection='polar')
+#    fig = plt.figure(figsize=(figsize, figsize))
+#    fig.patch.set_facecolor('w')
+#    ax = fig.add_subplot(111, projection='polar')
+#    fig.add_subplot(111, projection='polar')
+#    ax = ax or plt.gca()
     plt.ylim(0, 1)
     
     res = 100   # Colormesh resolution. 100 suggested.
@@ -295,23 +263,11 @@ def createColorLegend(R, theta, fname=None):
     p.set_array(None)
     
     plt.grid(True,c='w')
+
     ax.scatter(theta, R, c='w',s=75, edgecolors='none', alpha=.75)
     
     if fname is not None:
         plt.savefig(fname, dpi=300, facecolor='w', bbox_inches='tight')
-    
-    plt.show()
-
-def plotBrains(coords, colors, fname=None):
-    #Simplified from projUtils version
-    mpl.rcParams.update(mpl.rcParamsDefault)
-    
-    numc = len(colors)
-    adjMat = np.zeros(shape=(numc, numc))
-    fig = plt.figure(figsize=[24, 12])
-    plot_connectome(adjMat, coords, colors, display_mode='lr', node_size=900,
-                    figure=fig, output_file=fname, black_bg=False)
-    plt.show()
 
 def assignColPair(cpair, x):
     rgb = [cpair[0]] * len(x)

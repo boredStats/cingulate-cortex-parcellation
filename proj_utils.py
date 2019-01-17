@@ -7,51 +7,20 @@ Common functions and data for this project
 @author: ixa080020
 """
 
-import os
 import numpy as np
 import pandas as pd
 import nibabel as nb
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.colors import rgb2hex,colorConverter
-from collections import defaultdict
 from nilearn.plotting import plot_connectome
+from os import path, getcwd, listdir
 
-def _get_pdir(server_path):
+class _proj_data():
     """
-    Gets directory for project on server
+    Hard-coded copy of essential project data.
+    This is a backup only.
+    Using the project data pickle file is recommended.
     """
-    c = os.listdir(os.path.abspath(server_path))
-    t = [i for i in c if "201801" in i and "Cingulate" in i][0]
-    return os.path.join(server_path, t)
-
-class Clusters(dict):
-    """
-    Support class for getting dendrogram cluster labels
-    See get_cluster_classes
-    
-    Note: unreliable method - recommend using scipy.hierarchy.flcuster
-        with parameters:
-            criterion='maxclust'
-        so that t=number of clusters
-    """
-    def _repr_html_(self):
-        html = '<table style="border: 0;">'
-        for c in self:
-            hx = rgb2hex(colorConverter.to_rgb(c))
-            html += '<tr style="border: 0;">' \
-            '<td style="background-color: {0}; ' \
-                       'border: 0;">' \
-            '<code style="background-color: {0};">'.format(hx)
-            html += c + '</code></td>'
-            html += '<td style="border: 0"><code>' 
-            html += repr(self[c]) + '</code>'
-            html += '</td></tr>'
-
-        html += '</table>'
-        return html
-
-class proj_data():
     def __init__(self):
         self.seed_list =  [
                 'PCC_inferior1_R','PCC_inferior2_R','PCC_inferior3_R',
@@ -115,32 +84,13 @@ class proj_data():
     
 def node_color_generator(color_palette,node_labels):
     """
-    color_palette: list of matplotlib colors, defaults to my list
+    color_palette: list of colors, defaults to my list
     node_labels: list of integers corresponding to cluster labels
     """        
     color_list = []
     for label in node_labels:
         color_list.append(color_palette[int(label)])
     return color_list
-
-def get_cluster_classes(den, label='ivl'):
-    """
-    algorithm for getting dendrogram cluster labels
-    den: dendrogram object from scipy.cluster.hierarchy.dendrogram
-    
-    Note: uses dendrogram from SciPy v0.14.0
-    """
-    cluster_idxs = defaultdict(list)
-    for c, pi in zip(den['color_list'], den['icoord']):
-        for leg in pi[1:3]:
-            i = (leg - 5.0) / 10.0
-            if abs(i - int(i)) < 1e-5:
-                cluster_idxs[c].append(int(i))
-    cluster_classes = Clusters()
-    for c, l in cluster_idxs.items():
-        i_l = [den[label][i] for i in l]
-        cluster_classes[c] = i_l
-    return cluster_classes
 
 def unique_sol_algorithm(unlabeled_sol):
     """
@@ -157,7 +107,7 @@ def unique_sol_algorithm(unlabeled_sol):
                 labeled_sol.append(j)
     return(labeled_sol)
 
-def convert_nii_to_gz(file,output_dir=os.getcwd()):
+def convert_nii_to_gz(file,output_dir=getcwd()):
     """
     function for converting nifti files to compressed .gz files
     
@@ -165,7 +115,7 @@ def convert_nii_to_gz(file,output_dir=os.getcwd()):
     output_dir: default is current working directory
     """
     try:
-        os.path.isdir(output_dir)
+        path.isdir(output_dir)
     except Exception:
         print(type(Exception))
     
@@ -175,7 +125,7 @@ def convert_nii_to_gz(file,output_dir=os.getcwd()):
         print(type(Exception))
     
     newname = "%s.gz" % file
-    fpath = os.path.join(output_dir,newname)
+    fpath = path.join(output_dir,newname)
     nb.save(nifti,fpath)
 
 def functional_preference_profile_prep():
@@ -226,6 +176,7 @@ def reorganize_feature_df(feat_df,unique_regions,unique_feats):
 
 def chunk_getter(maxcol, chunk_size=1000):
     """
+    Voxelwise support func
     Calculate number of chunks to divide x_cols into
     Default chunk_size is 1000 variables per chunk
     """
@@ -236,6 +187,7 @@ def chunk_getter(maxcol, chunk_size=1000):
 
 def colrange_getter(maxcol, chunk, chunk_size=1000):
     """
+    Voxelwise support func
     Get the range of x_cols to grab
     """
     colrange = range(chunk*chunk_size, (chunk + 1)*chunk_size)
@@ -243,8 +195,46 @@ def colrange_getter(maxcol, chunk, chunk_size=1000):
         colrange = range(chunk*chunk_size, maxcol)
     return colrange
 
-def plotBrains(nodeCoords, nodeColors, fname=None):
-    numc = len(nodeColors)
+def plotBrains(coords, colors, node_size=900, axis=None, fname=None, plot_flag=True):
+    #Simplified from projUtils version
+    mpl.rcParams.update(mpl.rcParamsDefault)
+    
+    numc = len(colors)
+    adjMat = np.zeros(shape=(numc, numc))
+    if not axis:
+        fig, ax = plt.subplots(figsize=[24, 12])
+        plot_connectome(adjMat, coords, colors, display_mode='lr',
+                        node_size=node_size, axes=ax,output_file=fname, black_bg=False)
+    else:
+        plot_connectome(adjMat, coords, colors, display_mode='lr',
+                        node_size=node_size, axes=axis,output_file=fname, black_bg=False)
+    if plot_flag:
+        plt.show() #default for notebooks
+    
+def _get_pdir(server_path):
+    """
+    Copy of function - Gets directory for project on server
+    """
+    c = listdir(path.abspath(server_path))
+    t = [i for i in c if "201801" in i and "Cingulate" in i][0]
+    return path.join(server_path, t)
+    
+def _get_proj_dir_v2():
+    """
+    Note: this function only works for serverside version of analyses
+    More robust version of finding the project directory
+    Looks for target instead of directory name
+    Just in case someone decides to rename the project folder... (._.)
+    """
+    pdir = path.abspath(getcwd())
+    target = "this_is_proj_dir.txt"
+    while not [t for t in listdir(pdir) if target in t]:
+        pdir = path.abspath(path.dirname(pdir))
+    return pdir
+
+def _plotBrains(nodeCoords, nodeColors, fname=None):
+	#deprecated
+    numc = nodeCoords.shape[0]
     adjacency_mat = np.zeros(shape=(numc, numc))
     
     brain_fig = plt.figure(figsize=[24,12])
@@ -257,27 +247,3 @@ def plotBrains(nodeCoords, nodeColors, fname=None):
             figure=brain_fig,
             output_file=fname,
             black_bg=False)
-    plt.show()
-
-def plotBrains2(coords, colors, fname=None):
-    #Simplified from projUtils version
-    mpl.rcParams.update(mpl.rcParamsDefault)
-    
-    numc = len(colors)
-    adjMat = np.zeros(shape=(numc, numc))
-    fig = plt.figure(figsize=[24, 12])
-    plot_connectome(adjMat, coords, colors, display_mode='lr', node_size=900,
-                    figure=fig, output_file=fname, black_bg=False)
-    plt.show()
-###############################
-def _get_proj_dir_v2():
-    """
-	More robust version of finding the project directory
-	Looks for target instead of directory name
-	Just in case someone decides to rename the project folder... (._.)
-    """
-    pdir = os.path.abspath(os.getcwd())
-    target = "this_is_proj_dir.txt"
-    while not [t for t in os.listdir(pdir) if target in t]:
-        pdir = os.path.abspath(os.path.dirname(pdir))
-    return pdir

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>Seed Generation Demo</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-15"><meta name="DC.source" content="seed_generation_notebook.m"><style type="text/css">
+      --><title>Seed Generation Demo</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-16"><meta name="DC.source" content="seed_generation_notebook.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -68,7 +68,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
   </style></head><body><div class="content"><h1>Seed Generation Demo</h1><!--introduction--><p>This notebook is a demonstration of how cingulate seed coordinates were determined for this project.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Introduction</a></li><li><a href="#3">Modelling the corpus callosum</a></li><li><a href="#7">Creating reference curves for coordinate selection</a></li><li><a href="#11">Final reference model</a></li><li><a href="#13">Selecting seed coordinates</a></li></ul></div><h2>Introduction<a name="1"></a></h2><p>The method is from Margulies et al. 2009. Seed coordinates were determined using three rules, listed here in order of precedence:</p><div><ol><li>Seed coordinates are at least 10mm apart.</li><li>The lower seed coordinates are at least 5mm away from the corpus callosum</li><li>The upper seed coordinates are at least 10mm away from the lower seeds.</li></ol></div><p>The first step is to model the curves of the corpus callosum. This was carried out using the MNI 152 brain, using the curvature of the corpus callosum at x=5.</p><pre class="codeinput"><span class="comment">%Prep work</span>
 clear <span class="string">variables</span>
-addpath(genpath(<span class="string">'./sgen_notebook_data/support_code'</span>));
+addpath(genpath(<span class="string">'./sgen_notebook_data/matlab_support_code'</span>));
 <span class="comment">%Figure parameters</span>
 fig_width = 700;
 fig_height = 600;
@@ -257,7 +257,7 @@ close(gcf)
 %%
 %Prep work
 clear variables
-addpath(genpath('./sgen_notebook_data/support_code'));
+addpath(genpath('./sgen_notebook_data/matlab_support_code'));
 %Figure parameters
 fig_width = 700;
 fig_height = 600;

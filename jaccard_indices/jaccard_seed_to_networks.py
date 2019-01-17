@@ -24,7 +24,7 @@ def _get_pdir(server_path):
     t = [i for i in c if "201801" in i and "Cingulate" in i][0]
     return os.path.join(server_path, t)
 
-with open(r"../serverPath.txt", 'r') as f:
+with open(r"./serverPath.txt", 'r') as f:
     server_path = f.read()
 parent_dir = _get_pdir(server_path)
 
