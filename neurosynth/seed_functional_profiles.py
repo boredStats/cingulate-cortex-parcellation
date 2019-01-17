@@ -4,6 +4,7 @@ Created on Thu Oct 11 15:10:43 2018
 
 Creating functional profiles using all seeds
 
+note sklearn 0.16.0 is required for stratifiedkFold
 @author: ixa080020
 """
 
@@ -28,7 +29,7 @@ seed_list = pData['newNames']
 print("Loading neurosynth data...")
 dataset, nicknames, word_keys = nu.functional_preference_profile_prep()
 
-mask_nifti = r"../create_seeds/seed_files/all_seeds_cluster_indexed_nifti.nii"
+mask_nifti = r"../create_seeds/seed_files/all_seeds_indexed.nii"
 print("Running classifier...") #nibabel 1.3.0 req
 clf = RegionalClassifier(dataset, mask_nifti, GaussianNB()) 
 clf.classify(scoring=roc_auc_score)
