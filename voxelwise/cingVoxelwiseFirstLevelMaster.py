@@ -3,6 +3,8 @@
 Created on Fri Nov 16 17:39:00 2018
 
 Cingulate voxel-voxel analysis - first level [master file]
+First-level and second-level scripts are tailored for ganymede/petastore
+These scripts are essentially backup copies
 
 @author: ixa080020
 """

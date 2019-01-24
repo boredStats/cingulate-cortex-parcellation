@@ -3,6 +3,8 @@
 Created on Mon Nov 19 13:22:33 2018
 
 2nd level analysis for cingulate voxel-voxel analysis
+First-level and second-level scripts are tailored for ganymede/petastore
+These scripts are essentially backup copies
 
 @author: ixa080020
 """
