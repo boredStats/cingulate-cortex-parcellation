@@ -6,7 +6,7 @@ gather project data
 
 @author: ixa080020
 """
-import os
+
 import numpy as np
 import pandas as pd
 import pickle as pkl
@@ -15,13 +15,15 @@ import sys
 sys.path.append('..')
 import proj_utils as pu
 
-pdir = pu._get_proj_dir_v2()
-projData = pu.proj_data().get_data()
+projData = pu._proj_data().get_data()
 
-seedNameDf = pd.read_table(os.path.join(pdir,"renamed_seeds_Vogt2005_mod.txt"))
+with open(r"./serverPath.txt", 'r') as f:
+    server_path = f.read()
+
+seedNameDf = pd.read_table(r"./renamed_seeds_Vogt2005_mod.txt")
 seedList = list(seedNameDf['New Names'].values)
 
-catColors = np.loadtxt("./rgb_google20c.txt", delimiter=',')
+catColors = np.loadtxt(r"./rgb_google20c.txt", delimiter=',')
 catColors = np.divide(catColors, 255)
 
 pData = {}
@@ -31,6 +33,7 @@ pData['newNames'] = seedList
 pData['icaNetworks'] = projData['network_names']
 pData['tabColors'] = projData['palette']
 pData['catColors'] = catColors
+pData['server_path'] = server_path
 
 with open(r"./../pData.pkl","wb") as f:
     pkl.dump(pData, f)
