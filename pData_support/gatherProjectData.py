@@ -26,6 +26,9 @@ seedList = list(seedNameDf['New Names'].values)
 catColors = np.loadtxt(r"./rgb_google20c.txt", delimiter=',')
 catColors = np.divide(catColors, 255)
 
+with open(r"./network_names.txt" ,'r') as f:
+    network_names = [s for s in f.read().split('\n')]
+
 pData = {}
 pData['coordsMNI'] = projData['coords']
 pData['oldNames'] = projData['seed_list']
@@ -34,6 +37,7 @@ pData['icaNetworks'] = projData['network_names']
 pData['tabColors'] = projData['palette']
 pData['catColors'] = catColors
 pData['server_path'] = server_path
+pData['network_names'] = network_names
 
 with open(r"./../pData.pkl","wb") as f:
     pkl.dump(pData, f)

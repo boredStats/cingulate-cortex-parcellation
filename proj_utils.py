@@ -19,7 +19,7 @@ class _proj_data():
     """
     Hard-coded copy of essential project data.
     This is a backup only.
-    Using the project data pickle file is recommended.
+    Using the project data pkl file is recommended.
     """
     def __init__(self):
         self.seed_list =  [
