@@ -16,20 +16,10 @@ from nilearn import image, masking
 from sklearn.metrics import jaccard_similarity_score as jsc
 nilearn.EXPAND_PATH_WILDCARDS = False
 
-def _get_pdir(server_path):
-    """
-    Gets directory for project on server
-    """
-    c = os.listdir(os.path.abspath(server_path))
-    t = [i for i in c if "201801" in i and "Cingulate" in i][0]
-    return os.path.join(server_path, t)
-
-with open(r"./serverPath.txt", 'r') as f:
-    server_path = f.read()
-parent_dir = _get_pdir(server_path)
-
 with open(r"../pData.pkl", 'rb') as f:
     pData = pkl.load(f)
+    
+parent_dir = pData['server_path']
 seed_list = pData['oldNames']
 res_dir = os.path.join(parent_dir,"projects/conn_Cingulate_project/results")
 seed_dir = os.path.join(res_dir, "secondlevel/ANALYSIS_01/AllSubjects/rest")
