@@ -19,14 +19,13 @@ nilearn.EXPAND_PATH_WILDCARDS = False
 with open(r"../pData.pkl", 'rb') as f:
     pData = pkl.load(f)
     
-parent_dir = pData['server_path']
+network_names = pData['network_names']
 seed_list = pData['oldNames']
+
+parent_dir = pData['server_path']
 res_dir = os.path.join(parent_dir,"projects/conn_Cingulate_project/results")
 seed_dir = os.path.join(res_dir, "secondlevel/ANALYSIS_01/AllSubjects/rest")
 network_dir = r"./network_masks"
-
-with open(r"./network_names.txt" ,'r') as f:
-    network_names = [s for s in f.read().split('\n')]
 
 #Create list of s2v folder results 
 s2v_folder_list = [os.path.join(seed_dir, s) for s in seed_list]
