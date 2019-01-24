@@ -7,6 +7,7 @@ import os
 import h5py
 import datetime
 import numpy as np
+import pickle as pkl
 from copy import deepcopy
 from mne.stats import fdr_correction
 from nilearn.masking import unmask, apply_mask
@@ -18,9 +19,14 @@ def clean_p_vector(p_vector):
     cleaned_p_vector = [p if not np.isnan(p) else correction for p in p_vector]
     return np.asarray(cleaned_p_vector)
 
-mni_mask = 'mni152T1mask2mm.nii'
-data_dir = r'./cingulate_second_level_'
-out_dir = r'./cingulate_second_level_thresh_'
+with open(r"../pData.pkl", 'rb') as f:
+    p_data = pkl.load(f)
+server_path = p_data['server_path']
+v_path = os.path.join(server_path, 'voxelwise')
+
+mni_mask = r'./mni152T1mask2mm.nii'
+data_dir = os.path.join(v_path, 'cingulate_second_level_')
+out_dir = os.path.join(v_path, 'cingulate_second_level_thresh_')
 
 aal2_dir = r'./aal2_chunks'
 aal2_masks = sorted(os.listdir(aal2_dir))
@@ -98,3 +104,6 @@ for aal2 in aal2_masknames:
             print(dataset_name + ' completed at ' + c)
             
     outfile.close()
+    
+c = str(datetime.datetime.now())
+print('Finished at ' + c)
