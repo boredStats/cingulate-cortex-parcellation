@@ -3,8 +3,6 @@
 Created on Mon Nov 19 13:22:33 2018
 
 2nd level analysis for cingulate voxel-voxel analysis
-First-level and second-level scripts are tailored for ganymede/petastore
-These scripts are essentially backup copies
 
 @author: ixa080020
 """
@@ -58,67 +56,69 @@ def alphanum_key(s):
 with open("secondLevPathsPrivate.txt") as f:
     paths = [k.replace("\n", "") for k in f]
     
-chunkDir = paths[0]
-dataDir = paths[1]
-outDir = paths[2]
+#chunkDir = paths[0]
+#dataDir = paths[1]
+#outDir = paths[2]
 
-#chunkDir = r"./aal2_chunks"
-#dataDir = r"./cingulate_first_level_"
-#outDir = r"./cingulate_second_level_"
+chunkDir = r"./aal2_chunks"
+dataDir = r"./cingulate_first_level_"
+outDir = r"./cingulate_second_level_"
 
-allSubjects = os.listdir(dataDir)
-chunkSize = 10 #extracts "small" amounts of data at a time
+first_level_data = os.listdir(dataDir)
+chunk_size = 10 #extracts "small" amounts of data at a time
 
-aalChunks = sorted(os.listdir(chunkDir))[0:]
+aalChunks = sorted(os.listdir(chunkDir))
 for aal2 in aalChunks:
-    #sleeper()
-    
     maskName = aal2.replace(".nii.gz","")
-    subjects = [s for s in allSubjects if maskName in s]
+    subjects = [s for s in first_level_data if maskName in s]
     
+    #Getting dataset keynames, vector size
     hf = h5py.File(os.path.join(dataDir, subjects[0]), 'r')
-    dset_names = list(hf.keys())
-    dset_names.sort(key=alphanum_key)
-    brainSize = len(hf[dset_names[0]][:,0])
+    keynames = list(hf.keys())
+    keynames.sort(key=alphanum_key)
+    brain_size = len(hf[keynames[0]][:,0])
     hf.close()
 
-    for dset_name in dset_names:
+    for key in keynames:
         #sleeper()
         
-        b = int(dset_name.split()[-1])
-        a = int(dset_name.split()[-3])
-        if (b - a + 1) == 1000:
-            maxColsInKey = 1000
+        #Check for true max number of columns in current dataset
+        first_vox_index = int(key.split()[-1])
+        last_vox_index = int(key.split()[-3])
+        if (first_vox_index - last_vox_index + 1) == 1000:
+            max_columns_in_dset = 1000
         else:
-            maxColsInKey = int(b - a)    
-    
-        chunks = chunk_getter(maxColsInKey, chunkSize)
-#        vox = 0
+            max_columns_in_dset = int(first_vox_index - last_vox_index)    
+        
+        #Calculate number of chunks to divide dataset into
+        chunks = chunk_getter(max_columns_in_dset, chunk_size)
+
         for chunk in range(chunks):
-            vox = 0
-            colrange = colrange_getter(maxColsInKey, chunk, chunkSize)
-            a = min(colrange)
-            b = max(colrange)
+            #Generate range of columns to extract volumn data
+            colrange = colrange_getter(max_columns_in_dset, chunk, chunk_size)
             
-            fname = "%s_cols_%d_to_%d.hdf5" % (maskName, a, b)
+            first_col = min(colrange)
+            last_col = max(colrange)
+            fname = "%s_cols_%d_to_%d.hdf5" % (maskName, first_col, last_col)
             fpath = os.path.join(outDir, fname)
+
             if os.path.isfile(fpath):
                 continue
             else:
                 file = h5py.File(fpath, "a")
                 file.close()
             
-            tData = np.ndarray(shape=[chunkSize, brainSize])
-            pData = np.ndarray(shape=[chunkSize, brainSize])
-            
-            for voxel in list(colrange):
-                conn_data = np.ndarray(shape=[len(subjects), brainSize])
+            t_data = np.ndarray(shape=[chunk_size, brain_size])
+            p_data = np.ndarray(shape=[chunk_size, brain_size])
+
+            for v, voxel in enumerate(list(colrange)):
+                conn_data = np.ndarray(shape=[len(subjects), brain_size])
                 
                 #--- extract connectivity data from every subject ---#
                 for s,subj in enumerate(subjects):
                     subjFile = os.path.join(dataDir, subj)
                     hf = h5py.File(subjFile, 'r')
-                    data = hf[dset_name][:, int(voxel)]
+                    data = hf[key][:, int(voxel)]
                     hf.close()
                     
                     np.nan_to_num(data, copy=False)
@@ -132,19 +132,18 @@ for aal2 in aalChunks:
                     del data, zData
     
                 #--- whole brain t-test ---#    
-                popmean = np.zeros(shape=[1, brainSize])
+                popmean = np.zeros(shape=[1, brain_size])
+                t_brain, p_brain = ttest_1samp(conn_data, popmean, axis=0)
     
-                tBrain, pBrain = ttest_1samp(conn_data, popmean, axis=0)
-    
-                tData[vox, :] = tBrain
-                pData[vox, :] = pBrain
+                t_data[v, :] = t_brain
+                p_data[v, :] = p_brain
                 del conn_data
-                vox += 1
-        
+
             file = h5py.File(fpath, "a")
-            file.create_dataset("tBrains", shape=tData.shape, dtype="f", data=tData)
-            file.create_dataset("pBrains", shape=pData.shape, dtype="f", data=pData)
+            file.create_dataset("tBrains", data=t_data)
+            file.create_dataset("pBrains", data=p_data)
             file.close()
         
-            del tData
-            del pData
+            del t_data
+            del p_data
+    break

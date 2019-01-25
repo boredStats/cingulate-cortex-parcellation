@@ -24,7 +24,7 @@ with open(r"../pData.pkl", 'rb') as f:
 server_path = p_data['server_path']
 v_path = os.path.join(server_path, 'voxelwise')
 
-mni_mask = r'./mni152T1mask2mm.nii'
+mni_mask = r'./../mni152T1mask2mm.nii'
 data_dir = os.path.join(v_path, 'cingulate_second_level_')
 out_dir = os.path.join(v_path, 'cingulate_second_level_thresh_')
 
@@ -34,6 +34,7 @@ aal2_masknames = [a.replace('.nii.gz', '') for a in aal2_masks]
 
 print('Starting at %s' % str(datetime.datetime.now()))
 for aal2 in aal2_masknames:
+    print('Trying %s: %s' % (aal2, str(datetime.datetime.now())))
     fname = aal2 + '_thresh.hdf5'
     outfile = h5py.File(os.path.join(out_dir, fname), 'a')
     

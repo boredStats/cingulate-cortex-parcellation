@@ -28,7 +28,7 @@ net_dir = r'./network_masks'
 net_masks = [os.path.join(net_dir, n) for n in os.listdir(net_dir)]
 
 #Resampling network masks to match voxelwise thresh mask dimensions
-mni = r'./mni152T1mask2mm.nii'
+mni = r'./../mni152T1mask2mm.nii'
 net_resamp = image.resample_to_img(net_masks, mni)       
 net_vects = masking.apply_mask(net_resamp, mni) #vectorizing network masks
 
